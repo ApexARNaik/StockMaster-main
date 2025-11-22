@@ -62,7 +62,7 @@ const ProductList = () => {
       setFormData({ name: '', sku: '', categoryId: '', uom: '' });
       setShowForm(false);
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       setMessage(error.response?.data?.error || 'Error creating product');
     }
   };
@@ -84,12 +84,18 @@ const ProductList = () => {
     p.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate total stock for each product
+  const getProductStock = (product) => {
+    if (!product.stocks || product.stocks.length === 0) return 0;
+    return product.stocks.reduce((total, stock) => total + stock.quantity, 0);
+  };
+
   if (loading) return <div className="text-center py-8">Loading...</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Products</h1>
+        <h1 className="text-3xl font-bold">📦 Products</h1>
         {isAdmin && (
           <button
             onClick={() => setShowForm(!showForm)}
@@ -184,6 +190,7 @@ const ProductList = () => {
               <th className="text-left p-3 text-dark-text-secondary">SKU</th>
               <th className="text-left p-3 text-dark-text-secondary">Category</th>
               <th className="text-left p-3 text-dark-text-secondary">UOM</th>
+              <th className="text-left p-3 text-dark-text-secondary">Total Stock</th>
               <th className="text-left p-3 text-dark-text-secondary">Status</th>
               {isAdmin && <th className="text-left p-3 text-dark-text-secondary">Actions</th>}
             </tr>
@@ -193,8 +200,13 @@ const ProductList = () => {
               <tr key={product.id} className="border-b border-dark-border hover:bg-dark-surface">
                 <td className="p-3 font-semibold">{product.name}</td>
                 <td className="p-3 text-purple-400">{product.sku}</td>
-                <td className="p-3">{product.category.name}</td>
+                <td className="p-3">{product.category?.name || 'N/A'}</td>
                 <td className="p-3">{product.uom}</td>
+                <td className="p-3">
+                  <span className={`font-bold ${getProductStock(product) > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {getProductStock(product)}
+                  </span>
+                </td>
                 <td className="p-3">
                   <span className={`px-2 py-1 rounded text-xs font-bold ${product.isActive ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'}`}>
                     {product.isActive ? 'Active' : 'Inactive'}
@@ -219,4 +231,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;x
+export default ProductList;

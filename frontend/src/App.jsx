@@ -5,6 +5,7 @@ import AuthForm from '../components/AuthForm';
 import Sidebar from '../components/Sidebar';
 import Dashboard from '../components/Dashboard';
 import ProductList from '../components/ProductList';
+import WarehouseList from '../components/WarehouseList';
 import ReceiptForm from '../components/ReceiptForm';
 import DeliveryForm from '../components/DeliveryForm';
 import TransferForm from '../components/TransferForm';
@@ -48,6 +49,14 @@ function AppContent() {
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<ProductList />} />
+              <Route
+                path="/warehouses"
+                element={
+                  <AdminRoute>
+                    <WarehouseList />
+                  </AdminRoute>
+                }
+              />
               <Route
                 path="/inventory/receipts"
                 element={

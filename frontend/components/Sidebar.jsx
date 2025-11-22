@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../src/context/AuthContext';
 
 const Sidebar = () => {
-  const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'MANAGER';
@@ -13,6 +12,7 @@ const Sidebar = () => {
     { name: 'Products', path: '/products', icon: '📦' },
     ...(isAdmin
       ? [
+          { name: 'Warehouses', path: '/warehouses', icon: '🏭' },
           { name: 'Receipts', path: '/inventory/receipts', icon: '📥' },
           { name: 'Deliveries', path: '/inventory/deliveries', icon: '📤' },
           { name: 'Transfers', path: '/inventory/transfers', icon: '↔️' },
@@ -38,7 +38,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-grow p-4">
+      <nav className="flex-grow p-4 overflow-y-auto">
         <ul className="space-y-2">
           {links.map((link) => (
             <li key={link.path}>
