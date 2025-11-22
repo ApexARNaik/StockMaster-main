@@ -4,17 +4,18 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --loader ts-node/esm index.mts"
+    "start": "tsx index.mts"
   },
   "dependencies": {
+    "@prisma/client": "5.22.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "tsx": "^4.20.6",
     "ws": "^8.18.3",
-    "zod": "^4.1.12",
-    "@prisma/client": "5.22.0"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
