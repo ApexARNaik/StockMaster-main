@@ -35,7 +35,7 @@ const AuthForm = () => {
         return;
       }
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.error || 'An error occurred');
     } finally {
       setIsLoading(false);

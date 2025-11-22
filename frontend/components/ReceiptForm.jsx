@@ -88,7 +88,7 @@ const ReceiptForm = () => {
       setFormData({ destWarehouseId: '', items: [{ productId: '', quantity: '' }], supplierId: '' });
       setShowForm(false);
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       setMessage(error.response?.data?.error || 'Error creating receipt');
     }
   };

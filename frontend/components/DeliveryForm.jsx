@@ -88,7 +88,7 @@ const DeliveryForm = () => {
       setFormData({ sourceWarehouseId: '', destWarehouseId: '', items: [{ productId: '', quantity: '' }] });
       setShowForm(false);
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       setMessage(error.response?.data?.error || 'Error creating delivery');
     }
   };
