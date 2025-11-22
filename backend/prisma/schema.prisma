@@ -1,0 +1,134 @@
+// This is your Prisma schema file for the inventory management system.
+
+generator client {
+  provider = "prisma-client-js"
+  // Remove or comment out the custom output path
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum DocType {
+  RECEIPT
+  DELIVERY
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum DocStatus {
+  Draft
+  Waiting
+  Ready
+  Done
+  Canceled
+}
+
+enum Direction {
+  IN
+  OUT
+}
+
+// Models
+model User {
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
+  passwordHash String
+  role        Role
+  isActive    Boolean @default(true)
+  documents   Document[] @relation("CreatedDocuments")
+  ledgers     Ledger[] @relation("UserLedgers")
+}
+
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String
+  products Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  sku         String    @unique
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  uom         String
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  stocks      Stock[]
+  documentLines DocumentLine[]
+  ledgers     Ledger[]
+}
+
+model Warehouse {
+  id       Int     @id @default(autoincrement())
+  name     String
+  location String
+  stocks   Stock[]
+  sourceDocuments Document[] @relation("SourceWarehouse")
+  destDocuments   Document[] @relation("DestWarehouse")
+  sourceLedgers   Ledger[]   @relation("SourceWarehouseLedger")
+  destLedgers     Ledger[]   @relation("DestWarehouseLedger")
+}
+
+model Stock {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  quantity    Int
+  @@unique([productId, warehouseId])
+}
+
+model Document {
+  id                Int         @id @default(autoincrement())
+  type              DocType
+  status            DocStatus
+  supplierId        Int?
+  sourceWarehouseId Int?
+  sourceWarehouse   Warehouse?  @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
+  destWarehouseId   Int?
+  destWarehouse     Warehouse?  @relation("DestWarehouse", fields: [destWarehouseId], references: [id])
+  createdById       Int
+  createdBy         User        @relation("CreatedDocuments", fields: [createdById], references: [id])
+  createdAt         DateTime    @default(now())
+  documentLines     DocumentLine[]
+  ledgers           Ledger[]
+}
+
+model DocumentLine {
+  id          Int       @id @default(autoincrement())
+  documentId  Int
+  document    Document  @relation(fields: [documentId], references: [id])
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Int
+}
+
+model Ledger {
+  id                Int         @id @default(autoincrement())
+  documentId        Int
+  document          Document    @relation(fields: [documentId], references: [id])
+  productId         Int
+  product           Product     @relation(fields: [productId], references: [id])
+  quantity          Int
+  direction         Direction
+  sourceWarehouseId Int?
+  sourceWarehouse   Warehouse?  @relation("SourceWarehouseLedger", fields: [sourceWarehouseId], references: [id])
+  destWarehouseId   Int?
+  destWarehouse     Warehouse?  @relation("DestWarehouseLedger", fields: [destWarehouseId], references: [id])
+  timestamp         DateTime    @default(now())
+  userId            Int
+  user              User        @relation("UserLedgers", fields: [userId], references: [id])
+}

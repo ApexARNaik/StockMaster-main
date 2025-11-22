@@ -1,0 +1,49 @@
+/* Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    background: linear-gradient(135deg, #0a0e1a 0%, #0f1419 100%);
+  }
+}
+
+/* Custom Component Definitions */
+@layer components {
+  .app-card {
+    @apply bg-dark-surface text-dark-text p-6 rounded-lg shadow-md;
+  }
+
+  .app-heading {
+    @apply text-3xl font-bold text-dark-text;
+  }
+
+  .app-label {
+    @apply block text-sm font-medium text-dark-text mb-1;
+  }
+
+  .app-input {
+    @apply w-full px-3 py-2 border border-dark-surface rounded-md bg-dark-bg text-dark-text focus:outline-none focus:ring-2 focus:ring-dark-surface;
+  }
+
+  .app-select {
+    @apply w-full px-3 py-2 border border-dark-surface rounded-md bg-dark-bg text-dark-text focus:outline-none focus:ring-2 focus:ring-dark-surface;
+  }
+
+  .btn-primary {
+    @apply w-full px-4 py-2 bg-dark-surface text-dark-text font-semibold rounded-md hover:bg-dark-bg focus:outline-none focus:ring-2 focus:ring-dark-surface;
+  }
+
+  .btn-secondary {
+    @apply text-dark-text underline hover:text-dark-text-secondary;
+  }
+
+  .btn-danger {
+    @apply w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500;
+  }
+}
