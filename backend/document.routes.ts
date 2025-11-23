@@ -162,19 +162,30 @@ async function processDocumentCompletion(doc: any, userId: number) {
 }
 
 // Helper: Upsert stock record
+// Add in upsertStock function
 async function upsertStock(productId: number, warehouseId: number, quantityChange: number) {
   const existingStock = await prisma.stock.findUnique({
-    where: {
-      productId_warehouseId: { productId, warehouseId },
-    },
+    where: { productId_warehouseId: { productId, warehouseId } },
   });
 
   if (existingStock) {
+    const newQuantity = existingStock.quantity + quantityChange;
+    
+    // ✅ Add validation
+    if (newQuantity < 0) {
+      throw new Error(`Insufficient stock for product ${productId} in warehouse ${warehouseId}`);
+    }
+    
     await prisma.stock.update({
       where: { id: existingStock.id },
-      data: { quantity: existingStock.quantity + quantityChange },
+      data: { quantity: newQuantity },
     });
   } else {
+    // ✅ Prevent creating negative stock
+    if (quantityChange < 0) {
+      throw new Error(`Cannot create negative stock for product ${productId}`);
+    }
+    
     await prisma.stock.create({
       data: {
         productId,
