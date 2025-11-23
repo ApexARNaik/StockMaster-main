@@ -70,6 +70,7 @@ documentRouter.post('/', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // UPDATE document status (MANAGER/ADMIN)
+// In document.routes.ts
 documentRouter.put('/:id/status', authenticateToken, authorizeRole(['ADMIN', 'MANAGER']), async (req: AuthRequest, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -77,7 +78,6 @@ documentRouter.put('/:id/status', authenticateToken, authorizeRole(['ADMIN', 'MA
   try {
     const docId = parseInt(id);
     
-    // Get current document
     const currentDoc = await prisma.document.findUnique({
       where: { id: docId },
       include: { documentLines: true },
@@ -87,21 +87,35 @@ documentRouter.put('/:id/status', authenticateToken, authorizeRole(['ADMIN', 'MA
       return res.status(404).json({ error: 'Document not found' });
     }
 
-    // If changing to "Done", process stock and ledger
+    // ✅ Use transaction
     if (status === 'Done' && currentDoc.status !== 'Done') {
-      await processDocumentCompletion(currentDoc, req.userId!);
+      await prisma.$transaction(async (tx) => {
+        await processDocumentCompletion(currentDoc, req.userId!, tx);
+        await tx.document.update({
+          where: { id: docId },
+          data: { status },
+        });
+      });
+    } else {
+      await prisma.document.update({
+        where: { id: docId },
+        data: { status },
+      });
     }
 
-    const document = await prisma.document.update({
+    // Fetch updated document
+    const document = await prisma.document.findUnique({
       where: { id: docId },
-      data: { status },
       include: { documentLines: { include: { product: true } } },
     });
 
     res.status(200).json({ message: 'Document status updated', document });
   } catch (error) {
     console.error('Error updating document:', error);
-    res.status(500).json({ error: 'Failed to update document' });
+    res.status(500).json({ 
+      error: 'Failed to update document',
+      details: error.message 
+    });
   }
 });
 
